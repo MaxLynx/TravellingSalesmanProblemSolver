@@ -7,7 +7,7 @@ public class Main {
 
     public static void main(String[] args) {
 
-        Solver solver = new Solver("src\\main\\resources\\Matica_BA_(0087).txt");
+        Solver solver = new Solver("src\\main\\resources\\Matica_TT_(0249).txt");
 
         int[][] frequencies = solver.getFrequencies();
         System.out.println("Frequencies:");
@@ -18,9 +18,19 @@ public class Main {
             System.out.println();
         }
 
+        solver.findStartingSolution();
+
+        System.out.println("Starting solution found:");
+        for (int i: solver.getResult()) {
+            System.out.print((i+1) + " "); // apply numeration from 1
+        }
+        System.out.println();
+        System.out.println("Starting solution total frequency: " + solver.getResultTotalFrequency());
+
         solver.solve();
 
-        System.out.println("Solution found:");
+        System.out.println("Simulated Annealing completed");
+        System.out.println("Final solution:");
         for (int i: solver.getResult()) {
             System.out.print((i+1) + " "); // apply numeration from 1
         }

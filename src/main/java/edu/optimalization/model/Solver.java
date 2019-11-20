@@ -24,19 +24,22 @@ public class Solver {
     }
 
     public void solve(){
+        fileInput.setX(improve(fileInput.getX()));
+    }
 
+    public int[] findStartingSolution(){
         long bestTotalFrequency = Integer.MAX_VALUE;
-        int[] bestStartingSolution = null;
+        int[] startingSolution = null;
         for (int i = 0; i < frequencies[0].length; i++) {
             int[] currentSolution = buildRoad(i);
             long currentFrequency = calculateTotalFrequency(currentSolution);
             if(currentFrequency < bestTotalFrequency){
                 bestTotalFrequency = currentFrequency;
-                bestStartingSolution = currentSolution;
+                startingSolution = currentSolution;
             }
         }
-        System.out.println(calculateTotalFrequency(bestStartingSolution));
-        fileInput.setX(improve(bestStartingSolution));
+        fileInput.setX(startingSolution);
+        return startingSolution;
     }
 
     public int[] improve(int[] currentSolution){
@@ -50,22 +53,26 @@ public class Solver {
             v = 0;
             r = 0;
             w = 0;
-
             do {
                 int[] newSolution = Arrays.copyOf(currentSolution, currentSolution.length);
                 int tmp = newSolution[i];
                 newSolution[i] = newSolution[i + 3];
                 newSolution[i + 3] = tmp;
+                tmp = newSolution[i + 1];
+                newSolution[i + 1] = newSolution[i + 2];
+                newSolution[i + 2] = tmp;
                 w++;
                 r++;
+                i++;
+                System.out.println("New trace has frequency " + calculateTotalFrequency(newSolution));
                 if (w == MAX_COUNT_FROM_THE_LAST_TEMPERATURE_CHANGE) {
                     temperature /= 1 + TEMPERATURE_DECREASE_COEFFICIENT * temperature;
                     w = 0;
                 }
                 if (calculateTotalFrequency(newSolution) <= calculateTotalFrequency(currentSolution)) {
-                    i++;
                     currentSolution = Arrays.copyOf(newSolution, currentSolution.length);
                     r = 0;
+                    System.out.println("Accepted new trace with frequency " + calculateTotalFrequency(newSolution));
                     if (calculateTotalFrequency(currentSolution) < calculateTotalFrequency(betterSolution)) {
                         betterSolution = Arrays.copyOf(currentSolution, currentSolution.length);
                         v++;
@@ -75,12 +82,12 @@ public class Solver {
                             - calculateTotalFrequency(newSolution)) / temperature;
                     double randomNumber = Math.random();
                     if (randomNumber <= probability) {
-                        i++;
                         currentSolution = Arrays.copyOf(newSolution, currentSolution.length);
                         r = 0;
+                        System.out.println("Accepted new trace with frequency " + calculateTotalFrequency(newSolution));
+
                     }
                 }
-
             } while (r != MAX_COUNT_FROM_THE_LAST_SOLUTION_CHANGE);
             if(v > 0){
                 temperature = MAX_TEMPERATURE;
